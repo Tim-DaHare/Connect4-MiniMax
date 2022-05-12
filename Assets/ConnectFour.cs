@@ -1,6 +1,6 @@
 using UnityEngine;
 
-enum CellState
+public enum CellState
 {
     Empty,
     Red,
@@ -16,7 +16,7 @@ public class ConnectFour : MonoBehaviour
     private int _gridHeight = 6;
 
     private CellState[,] _grid;
-    
+
     private void Start()
     {
         _grid = new CellState[_gridWidth, _gridHeight];
@@ -26,22 +26,12 @@ public class ConnectFour : MonoBehaviour
             filterMode = FilterMode.Point
         };
         _material.mainTexture = _boardTex;
-        
-        PlaceChip(0, CellState.Blue);
-        PlaceChip(0, CellState.Red);
-        PlaceChip(1, CellState.Blue);
-        PlaceChip(2, CellState.Red);
-        PlaceChip(3, CellState.Blue);
-        PlaceChip(4, CellState.Red);
-        PlaceChip(4, CellState.Blue);
-        PlaceChip(5, CellState.Red);
         UpdateGridTexture();
     }
-
+    
     private void UpdateGridTexture()
     {
         for (var x = 0; x < _gridWidth; x++)
-        {
             for (var y = 0; y < _gridHeight; y++)
             {
                 var color = _grid[x, y] switch
@@ -52,8 +42,13 @@ public class ConnectFour : MonoBehaviour
                 };
                 _boardTex.SetPixel(x, y, color);
             }
-        }
+        
         _boardTex.Apply();
+    }
+
+    public void PlaceChipBlue(int columnIndex)
+    {
+        PlaceChip(columnIndex, CellState.Blue);
     }
 
     private void PlaceChip(int columnIndex, CellState color)
@@ -63,12 +58,14 @@ public class ConnectFour : MonoBehaviour
             if (y == 0 && _grid[columnIndex, y] == CellState.Empty)
             {
                 _grid[columnIndex, y] = color;
+                UpdateGridTexture();
                 return;
             }
             
             if (_grid[columnIndex, y - 1] != CellState.Empty)
             {
                 _grid[columnIndex, y] = color;
+                UpdateGridTexture();
                 return;
             }
         }
