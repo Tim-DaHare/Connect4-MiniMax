@@ -9,6 +9,15 @@ public class Node
 
 public static class AI
 {
+    /// <summary>
+    /// This is the recursive minimax algorithm, it also includes alpha beta pruning
+    /// </summary>
+    /// <param name="node"></param>
+    /// <param name="depth"></param>
+    /// <param name="alpha"></param>
+    /// <param name="beta"></param>
+    /// <param name="isMax"></param>
+    /// <returns></returns>
     public static int MiniMax(Node node, int depth, int alpha, int beta, bool isMax)
     {
         if (depth == 0 || true) // add method which determines if the game is over 
