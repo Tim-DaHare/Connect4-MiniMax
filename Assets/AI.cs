@@ -1,34 +1,4 @@
-using System.Collections.Generic;
 using UnityEngine;
-
-public class Node
-{
-    public CellState[,] grid;
-    public List<Node> children;
-    public Node parent;
-
-    public int evalValue;
-
-    public int Evaluate()
-    {
-        return 1;
-    }
-
-    public Node(CellState[,] cGrid, Node cParent = null)
-    {
-        grid = cGrid.Clone() as CellState[,];
-        parent = cParent;
-    }
-
-    public void InitializeChildren(int childCount, int gridWidth, int gridHeight)
-    {
-        for (int i = 0; i < childCount; i++)
-        {
-            var g = new CellState[gridWidth, gridHeight];
-            children.Add(new Node(g, this));
-        }
-    }
-}
 
 public static class AI
 {
@@ -44,31 +14,48 @@ public static class AI
     public static int MiniMax(Node node, int depth, int alpha, int beta, bool isMax)
     {
         if (depth == 0 || ConnectFour.IsGameOver(node.grid))
-            return node.Evaluate();
+        {
+            node.evalValue = node.Evaluate(isMax);
+            return node.Evaluate(isMax);
+        }
+        
+        node.InitializeChildren(7, isMax);
 
+        var i = 0;
         if (isMax)
         {
             var maxEval = int.MinValue;
             foreach (var child in node.children)
             {
                 var eval = MiniMax(child, depth -1, alpha, beta, false);
+
                 maxEval = Mathf.Max(maxEval, eval);
                 alpha = Mathf.Max(alpha, eval);
-                if (beta <= alpha)
+                if (beta <= alpha || ConnectFour.IsColumnFull(child.grid, i))
                     break;
+
+                i++;
             }
+
+            node.evalValue = maxEval;
             return maxEval;
         }
 
+        i = 0;
         var minEval = int.MaxValue;
         foreach (var child in node.children)
         {
             var eval = MiniMax(child, depth -1, alpha, beta, true);
+            
             minEval = Mathf.Min(minEval, eval);
             beta = Mathf.Min(minEval, eval);
-            if (beta <= alpha)
+            if (beta <= alpha || ConnectFour.IsColumnFull(child.grid, i))
                 break;
+            
+            i++;
         }
+        
+        node.evalValue = minEval;
         return minEval;
     }
 }

@@ -16,10 +16,9 @@ public class ConnectFour : MonoBehaviour
     private int _gridHeight = 6;
     
     private CellState[,] _grid;
-    
-    // private bool _playerStarts;
-    private bool _isPlayersTurn = true;
-    
+
+    public Node testNode;
+
     private void Start()
     {
         _grid = new CellState[_gridWidth, _gridHeight];
@@ -29,19 +28,22 @@ public class ConnectFour : MonoBehaviour
             filterMode = FilterMode.Point
         };
         _material.mainTexture = _boardTex;
-        // PlaceChip(0, CellState.Red);
-        // PlaceChip(0, CellState.Red);
-        // PlaceChip(0, CellState.Red);
-        // PlaceChip(1, CellState.Red);
-        // PlaceChip(1, CellState.Red);
-        // PlaceChip(2, CellState.Red);
+
+        // var newG = PlaceChip(_grid, 0, CellState.Blue);
+        // _grid = newG;
+        // newG = PlaceChip(_grid, 0, CellState.Blue);
+        // _grid = newG;
+        // newG = PlaceChip(_grid, 0, CellState.Blue);
+        // _grid = newG;
+        // newG = PlaceChip(_grid, 0, CellState.Blue);
+        // _grid = newG;
+        // newG = PlaceChip(_grid, 0, CellState.Blue);
+        // _grid = newG;
+        // newG = PlaceChip(_grid, 0, CellState.Blue);
+        // _grid = newG;
         //
-        // PlaceChip(4, CellState.Red);
-        // PlaceChip(5, CellState.Red);
-        // PlaceChip(5, CellState.Red);
-        // PlaceChip(6, CellState.Red);
-        // PlaceChip(6, CellState.Red);
-        // PlaceChip(6, CellState.Red);
+        // print($"first col is full: {ConnectFour.IsColumnFull(_grid, 0)}");
+        
         UpdateGridTexture();
     }
 
@@ -67,58 +69,96 @@ public class ConnectFour : MonoBehaviour
         var node = new Node(_grid);
         
         var sTime = Time.time;
-
-        node.InitializeChildren(_gridWidth, _gridWidth, _gridHeight);
-
+        
         // calculate best move and get col index for that move
-        var tarEval = AI.MiniMax(node, 3, int.MinValue, int.MaxValue, true);
+        var tarEval = AI.MiniMax(node, 7, int.MinValue, int.MaxValue, true);
         var tarCol = node.children.FindIndex(n => n.evalValue == tarEval);
-        
-        PlaceChip(tarCol, CellState.Red);
-        
-        print($"AI took {Time.time - sTime} seconds to decide their turn");
-        
-        _isPlayersTurn = true;
+
+        testNode = node;
+
+        print($"AI took {Time.time - sTime} seconds to decide their turn, decide for column: {tarCol}, evaluation: {tarEval}. Column filled before placement: {IsColumnFull(_grid, tarCol)}");
+
+        var newGrid = PlaceChip(_grid, tarCol, CellState.Red);
+        _grid = newGrid;
+        UpdateGridTexture();
+
+        var o = IsGameOver(_grid);
+        if (o) 
+            print("AI Won!");
     }
 
     public void PlaceChipBlue(int columnIndex)
     {
-        // if (!_isPlayersTurn) return;
+        var newGrid = PlaceChip(_grid, columnIndex, CellState.Blue);
+        _grid = newGrid;
+        UpdateGridTexture();
         
-        PlaceChip(columnIndex, CellState.Blue);
         var o = IsGameOver(_grid);
-        print(o);
-        // _isPlayersTurn = false;
+        if (o)
+        {
+            print("Player Won!");
+            return;
+        }
 
-        // AITurn();
+        AITurn();
     }
 
     /// <summary>
     /// Method to place a chip of a specified color into a column of the grid
     /// </summary>
+    /// <param name="grid"></param>
     /// <param name="columnIndex"></param>
     /// <param name="color"></param>
     /// <returns>A boolean representing if placement is a success</returns>
-    private bool PlaceChip(int columnIndex, CellState color)
+    public static CellState[,] PlaceChip(CellState[,] grid, int columnIndex, CellState color)
     {
-        for (var y = _gridHeight - 1; y >= 0; y--)
+        var gridCopy = CloneGrid(grid);
+        if (IsColumnFull(grid, columnIndex)) return gridCopy;
+        
+        var gridHeight = grid.GetLength(1);
+        
+        for (var y = gridHeight - 1; y >= 0; y--)
         {
-            if (y == 0 && _grid[columnIndex, y] == CellState.Empty)
+            if (y == 0 && grid[columnIndex, y] == CellState.Empty)
             {
-                _grid[columnIndex, y] = color;
-                UpdateGridTexture();
-                return true;
+                gridCopy[columnIndex, y] = color;
+                return gridCopy;
             }
+
+            var botI = y - 1;
+            if (botI < 0 || botI >= gridHeight) continue;
             
-            if (_grid[columnIndex, y - 1] != CellState.Empty)
+            if (grid[columnIndex, botI] != CellState.Empty)
             {
-                _grid[columnIndex, y] = color;
-                UpdateGridTexture();
-                return true;
+                gridCopy[columnIndex, y] = color;
+                return gridCopy;
             }
         }
 
-        return false;
+        return gridCopy;
+    }
+
+    public static CellState[,] CloneGrid(CellState[,] sourceGrid)
+    {
+        var width = sourceGrid.GetLength(0);
+        var height = sourceGrid.GetLength(1);
+
+        var newGrid = new CellState[width, height];
+
+        for (var x = 0; x < width; x++)
+        for (var y = 0; y < height; y++)
+        {
+            newGrid[x, y] = sourceGrid[x, y];
+        }
+        
+        return newGrid;
+    }
+
+    public static bool IsColumnFull(CellState[,] grid, int columnIndex)
+    {
+        var gridHeight = grid.GetLength(1);
+        
+        return grid[columnIndex, gridHeight - 1] != CellState.Empty;
     }
 
     public static bool IsGameOver(CellState[,] grid)
@@ -128,24 +168,6 @@ public class ConnectFour : MonoBehaviour
         
         // Horizontal scan for 4 chips across the grid
         for (var x = 0; x < gridWidth; x++)
-            for (var y = 0; y < gridHeight; y++)
-            {
-                var startColor = grid[x, y];
-                if (startColor == CellState.Empty) continue; // Skip empty cells
-
-                var count = 0;
-                for (var s = 0; s < 4; s++)
-                {
-                    var si = x + s;
-                    if (si >= gridWidth || grid[si, y] != startColor) break;
-                    count++;
-                    
-                    if (count >= 4) return true;
-                }
-            }
-        
-        // Vertical scan for 4 chips across the grid
-        for (var x = 0; x < gridWidth; x++)
         for (var y = 0; y < gridHeight; y++)
         {
             var startColor = grid[x, y];
@@ -154,10 +176,28 @@ public class ConnectFour : MonoBehaviour
             var count = 0;
             for (var s = 0; s < 4; s++)
             {
-                var si = y + s;
-                if (si >= gridWidth || grid[x, si] != startColor) break;
+                var si = x + s;
+                if (si >= gridWidth || grid[si, y] != startColor) break;
                 count++;
-                    
+                
+                if (count >= 4) return true;
+            }
+        }
+        
+        // Vertical scan for 4 chips across the grid
+        for (var x = 0; x < gridWidth; x++)
+        for (var y = 0; y < gridHeight; y++)
+        {
+            var startColor = grid[x, y];
+            if (startColor == CellState.Empty) continue; // Skip empty cells
+            
+            var count = 0;
+            for (var s = 0; s < 4; s++)
+            {
+                var si = y + s;
+                if (si >= gridHeight || grid[x, si] != startColor) break;
+                count++;
+                
                 if (count >= 4) return true;
             }
         }
@@ -168,7 +208,7 @@ public class ConnectFour : MonoBehaviour
         {
             var startColor = grid[x, y];
             if (startColor == CellState.Empty) continue; // Skip empty cells
-
+            
             var count = 0;
             for (var s = 0; s < 4; s++)
             {
@@ -176,7 +216,7 @@ public class ConnectFour : MonoBehaviour
                 var siY = y + s;
                 if (siX >= gridWidth || siY >= gridHeight || grid[siX, siY] != startColor) break;
                 count++;
-                    
+                
                 if (count >= 4) return true;
             }
         }
@@ -193,7 +233,7 @@ public class ConnectFour : MonoBehaviour
             {
                 var siX = x + s;
                 var siY = y - s;
-                if (siX >= gridWidth || siY < 0 ||  siY >= gridHeight || grid[siX, siY] != startColor) break;
+                if (siX >= gridWidth || siY < 0 || grid[siX, siY] != startColor) break;
                 count++;
                     
                 if (count >= 4) return true;
