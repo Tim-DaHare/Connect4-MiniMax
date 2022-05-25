@@ -27,11 +27,17 @@ public static class AI
             var maxEval = int.MinValue;
             foreach (var child in node.children)
             {
+                if (ConnectFour.IsColumnFull(child.grid, i))
+                {
+                    i++;
+                    continue;
+                }
+                
                 var eval = MiniMax(child, depth -1, alpha, beta, false);
 
                 maxEval = Mathf.Max(maxEval, eval);
                 alpha = Mathf.Max(alpha, eval);
-                if (beta <= alpha || ConnectFour.IsColumnFull(child.grid, i))
+                if (beta <= alpha)
                     break;
 
                 i++;
@@ -45,11 +51,17 @@ public static class AI
         var minEval = int.MaxValue;
         foreach (var child in node.children)
         {
+            if (ConnectFour.IsColumnFull(child.grid, i))
+            {
+                i++;
+                continue;
+            }
+
             var eval = MiniMax(child, depth -1, alpha, beta, true);
             
             minEval = Mathf.Min(minEval, eval);
             beta = Mathf.Min(minEval, eval);
-            if (beta <= alpha || ConnectFour.IsColumnFull(child.grid, i))
+            if (beta <= alpha)
                 break;
             
             i++;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-// [Serializable]
+[Serializable]
 public class Node
 {
     public CellState[,] grid;
@@ -54,7 +54,7 @@ public class Node
                         switch (count)
                         {
                             case >= 4:
-                                score += 100;
+                                score += 1000;
                                 break;
                             case 3:
                                 score += 5;
@@ -93,7 +93,7 @@ public class Node
                         switch (count)
                         {
                             case >= 4:
-                                score += 100;
+                                score += 1000;
                                 break;
                             case 3:
                                 score += 5;
@@ -133,7 +133,7 @@ public class Node
                         switch (count)
                         {
                             case >= 4:
-                                score += 100;
+                                score += 1000;
                                 break;
                             case 3:
                                 score += 5;
@@ -173,7 +173,7 @@ public class Node
                         switch (count)
                         {
                             case >= 4:
-                                score += 100;
+                                score += 1000;
                                 break;
                             case 3:
                                 score += 5;
