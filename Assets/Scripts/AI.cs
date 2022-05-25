@@ -13,8 +13,13 @@ public static class AI
     /// <returns></returns>
     public static int MiniMax(Node node, int depth, int alpha, int beta, bool isMax)
     {
-        if (depth == 0 || ConnectFour.IsGameOver(node.grid))
+        var o = ConnectFour.IsGameOver(node.grid);
+        if (depth == 0 || o != CellState.Empty)
         {
+            var pColor = isMax ? CellState.Red : CellState.Blue;
+            if (o != CellState.Empty)
+                return o == pColor ? int.MaxValue : int.MinValue;
+             
             node.evalValue = node.Evaluate(isMax);
             return node.Evaluate(isMax);
         }

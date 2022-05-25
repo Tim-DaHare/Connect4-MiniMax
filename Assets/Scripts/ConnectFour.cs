@@ -14,6 +14,9 @@ public class ConnectFour : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _text;
 
     public ChipButton[] chipButtons;
+
+    public Node test;
+    
     private void Start()
     {
         _grid = new CellState[_gridWidth, _gridHeight];
@@ -63,12 +66,20 @@ public class ConnectFour : MonoBehaviour
         SetButtonDisabled(true);
         
         var node = new Node(_grid);
+        test = node;
         
         var sTime = Time.time;
         
         // calculate best move and get col index for that move
-        var tarEval = AI.MiniMax(node, 7, int.MinValue, int.MaxValue, true);
+        var tarEval = AI.MiniMax(node, 4, int.MinValue, int.MaxValue, true);
         var tarCol = node.children.FindIndex(n => n.evalValue == tarEval);
+        // var matchedNodes = node.children.FindAll(n => n.evalValue == tarEval);
+
+        // Introduce some randomisation in the moves
+        // var randomIndex = Random.Range(0, matchedNodes.Count);
+        // var targetNode = matchedNodes[randomIndex];
+
+        // var tarCol = node.children.FindIndex(n => n == targetNode);
 
         print($"AI took {Time.time - sTime} seconds to decide their turn, decide for column: {tarCol}, evaluation: {tarEval}. Column filled before placement: {IsColumnFull(_grid, tarCol)}");
 
@@ -78,7 +89,7 @@ public class ConnectFour : MonoBehaviour
 
         var o = IsGameOver(_grid);
 
-        if (o)
+        if (o != CellState.Empty)
         {
             _text.text = "AI Won!";
             return;
@@ -94,7 +105,7 @@ public class ConnectFour : MonoBehaviour
         UpdateGridTexture();
         
         var o = IsGameOver(_grid);
-        if (o)
+        if (o != CellState.Empty)
         {
             _text.text = "Player Won!";
             SetButtonDisabled(true);
@@ -162,7 +173,7 @@ public class ConnectFour : MonoBehaviour
         return grid[columnIndex, gridHeight - 1] != CellState.Empty;
     }
 
-    public static bool IsGameOver(CellState[,] grid)
+    public static CellState IsGameOver(CellState[,] grid)
     {
         var gridWidth = grid.GetLength(0);
         var gridHeight = grid.GetLength(1);
@@ -181,7 +192,7 @@ public class ConnectFour : MonoBehaviour
                 if (si >= gridWidth || grid[si, y] != startColor) break;
                 count++;
                 
-                if (count >= 4) return true;
+                if (count >= 4) return startColor;
             }
         }
         
@@ -199,7 +210,7 @@ public class ConnectFour : MonoBehaviour
                 if (si >= gridHeight || grid[x, si] != startColor) break;
                 count++;
                 
-                if (count >= 4) return true;
+                if (count >= 4) return startColor;
             }
         }
         
@@ -218,7 +229,7 @@ public class ConnectFour : MonoBehaviour
                 if (siX >= gridWidth || siY >= gridHeight || grid[siX, siY] != startColor) break;
                 count++;
                 
-                if (count >= 4) return true;
+                if (count >= 4) return startColor;
             }
         }
         
@@ -237,10 +248,10 @@ public class ConnectFour : MonoBehaviour
                 if (siX >= gridWidth || siY < 0 || grid[siX, siY] != startColor) break;
                 count++;
                     
-                if (count >= 4) return true;
+                if (count >= 4) return startColor;
             }
         }
         
-        return false;
+        return CellState.Empty;
     }
 }
