@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 [Serializable]
@@ -42,7 +42,7 @@ public class Node
             var startColor = grid[x, y];
             if (startColor == CellState.Empty) continue; // Skip empty cells
             
-            var count = 0;
+            var count = 1;
             for (var s = 0; s < 4; s++)
             {
                 var si = x + s;
@@ -81,7 +81,7 @@ public class Node
             var startColor = grid[x, y];
             if (startColor == CellState.Empty) continue; // Skip empty cells
             
-            var count = 0;
+            var count = 1;
             for (var s = 0; s < 4; s++)
             {
                 var si = y + s;
@@ -120,7 +120,7 @@ public class Node
             var startColor = grid[x, y];
             if (startColor == CellState.Empty) continue; // Skip empty cells
             
-            var count = 0;
+            var count = 1;
             for (var s = 0; s < 4; s++)
             {
                 var xi = x + s;
@@ -160,7 +160,7 @@ public class Node
             var startColor = grid[x, y];
             if (startColor == CellState.Empty) continue; // Skip empty cells
             
-            var count = 0;
+            var count = 1;
             for (var s = 0; s < 4; s++)
             {
                 var xi = x + s;

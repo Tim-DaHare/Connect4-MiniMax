@@ -71,15 +71,8 @@ public class ConnectFour : MonoBehaviour
         var sTime = Time.time;
         
         // calculate best move and get col index for that move
-        var tarEval = AI.MiniMax(node, 4, int.MinValue, int.MaxValue, true);
+        var tarEval = AI.CalculateMove(node, 4, int.MinValue, int.MaxValue, true);
         var tarCol = node.children.FindIndex(n => n.evalValue == tarEval);
-        // var matchedNodes = node.children.FindAll(n => n.evalValue == tarEval);
-
-        // Introduce some randomisation in the moves
-        // var randomIndex = Random.Range(0, matchedNodes.Count);
-        // var targetNode = matchedNodes[randomIndex];
-
-        // var tarCol = node.children.FindIndex(n => n == targetNode);
 
         print($"AI took {Time.time - sTime} seconds to decide their turn, decide for column: {tarCol}, evaluation: {tarEval}. Column filled before placement: {IsColumnFull(_grid, tarCol)}");
 

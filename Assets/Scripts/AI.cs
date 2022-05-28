@@ -11,7 +11,7 @@ public static class AI
     /// <param name="beta"></param>
     /// <param name="isMax"></param>
     /// <returns></returns>
-    public static int MiniMax(Node node, int depth, int alpha, int beta, bool isMax)
+    public static int CalculateMove(Node node, int depth, int alpha, int beta, bool isMax)
     {
         var o = ConnectFour.IsGameOver(node.grid);
         if (depth == 0 || o != CellState.Empty)
@@ -38,7 +38,7 @@ public static class AI
                     continue;
                 }
                 
-                var eval = MiniMax(child, depth -1, alpha, beta, false);
+                var eval = CalculateMove(child, depth -1, alpha, beta, false);
 
                 maxEval = Mathf.Max(maxEval, eval);
                 alpha = Mathf.Max(alpha, eval);
@@ -62,7 +62,7 @@ public static class AI
                 continue;
             }
 
-            var eval = MiniMax(child, depth -1, alpha, beta, true);
+            var eval = CalculateMove(child, depth -1, alpha, beta, true);
             
             minEval = Mathf.Min(minEval, eval);
             beta = Mathf.Min(minEval, eval);
